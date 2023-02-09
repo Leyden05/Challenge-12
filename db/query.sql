@@ -5,10 +5,10 @@ USE office_db;
 SELECT id, name AS department FROM department;
 
 -- -- all roles
-SELECT role.title,role.id, name AS department, role.salary 
-FROM department
-JOIN role
-ON department_id = department.id;
+SELECT role.title,role.id, deparment.name AS department, role.salary 
+FROM role
+JOIN department
+ON role.department_id = department.id;
 
 -- -- all employees
 SELECT employee.id, employee.first_name, employee.last_name, role.title, name AS department, role.salary, employee.manager_id

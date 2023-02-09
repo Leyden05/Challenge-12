@@ -5,8 +5,8 @@ require('dotenv').config()
     {
       host: 'localhost',
       user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME
+      password: process.env.DB_PW,
+      database: process.env.DB_DB
     },
     console.log(`Connected to db`)
   );
