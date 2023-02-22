@@ -36,14 +36,11 @@ function menu() {
             addRole();
         } else if (answers.options === "add an employee") {
             addEmp();
-        }
-
-
+        } 
     })
 }
 
 // view all departments
-
 function getAllDep() {
     const queryStore = `SELECT id, name AS department FROM department;`
     db.query(queryStore, (err, results) => {
@@ -84,6 +81,10 @@ function getAllEmp() {
 
 // add a department
 const departmentArr = [];
+db.query(`SELECT name FROM department;`, (err, results) => {
+    err ? console.log(err) : results.forEach(obj => departmentArr.push(obj.name))    
+})
+
 
 function addDep() {
     inquirer
@@ -126,7 +127,7 @@ function addRole() {
                 message: "What is the salary of the role?"
             },
             {
-                type: "checkbox",
+                type: "list",
                 name: "roleDepartment",
                 message: "What department does the role belong to?",
                 choices: departmentArr
@@ -138,7 +139,7 @@ function addRole() {
             const queryStore = `INSERT INTO role (title, salary, department_id) VALUES (?,?,?)`
             db.query(queryStore, [answers.roleTitle, answers.roleSalary, id], (err, results) => {
                 err ? console.log(err) : console.log(`Added ${answers.roleTitle} to the database!`) 
-                roleArr.push(answers.newDepartment);
+                roleArr.push(answers.roleTitle);
                 menu();
             })
         
@@ -147,7 +148,7 @@ function addRole() {
 
 // add an employee
 
-const employeeArr = [];
+const employeeArrTotal = [];
 const managerArr = [];
 function addEmp() {
     inquirer
@@ -181,5 +182,40 @@ function addEmp() {
         const manIndex = managerArr.indexOf(answers.manager);
         const managerId = manIndex + 1;
         
+        const queryStore = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`
+        db.query(queryStore, [answers.firstName, answers.lastName, id, managerId]), (err, results) => {
+            err? console.log(err) : console.log(`Added ${answers.firstName} ${answers.lastName} to the database!`)
+            menu();
+        }
+
+    })
+}
+
+// update an employee
+updateEmployee = () => {
+    inquirer
+    .prompt([      
+        {
+            type: 'checkbox', 
+            name: 'employeeUpdate',
+            message: "Who is the employee you want to update?",
+            choices: employeeArrTotal
+        },
+        {
+            type: 'checkbox', 
+            name: 'employeeNewRole',
+            message: "What is the employee's new role?",
+            choices: roleArr
+        },
+    ])
+    .then((data) => {
+        const newRoleIndex = roleArr.indexOf(data.employeeNewRole[0]);
+        const newRoleid = newRoleIndex + 1;
+        const employeeIndex = employeeArrTotal[0].indexOf(data.employeeUpdate[0]);
+        const employeeid = employeeIndex +1;
+        db.query(`UPDATE employee SET role_id  = ? WHERE id = ? `, [newRoleid, employeeid], (err, result) => {
+            err ? console.log(err) : console.log(`Updated employee in the database`)
+            menu();
+        })
     })
 }
