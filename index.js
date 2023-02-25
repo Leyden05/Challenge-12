@@ -36,6 +36,8 @@ function menu() {
             addRole();
         } else if (answers.options === "add an employee") {
             addEmp();
+        } else if (answers.options === "update an employee role") {
+            updateEmpRole();
         } 
     })
 }
@@ -101,7 +103,7 @@ function addDep() {
         if (err) {
             console.log(err);
         }
-        err ? console.log(err) : console.log(`Added ${answers.newDepartment} to the database!`) 
+        console.log(`Added ${answers.newDepartment} to the database!`) 
         departmentArr.push(answers.newDepartment);
         menu();
     })
@@ -111,7 +113,6 @@ function addDep() {
     }
 
 // add a role
-const roleArr = [];
 
 function addRole() {
     inquirer
@@ -134,7 +135,7 @@ function addRole() {
             }
         ])
         .then((answers) => {
-            const index = departmentArr.indexOf(answers.roleDepartment[0]);
+            const index = departmentArr.indexOf(answers.roleDepartment);
             const id = index + 1;
             const queryStore = `INSERT INTO role (title, salary, department_id) VALUES (?,?,?)`
             db.query(queryStore, [answers.roleTitle, answers.roleSalary, id], (err, results) => {
@@ -148,8 +149,17 @@ function addRole() {
 
 // add an employee
 
-const employeeArrTotal = [];
+const roleArr = [];
+db.query(`SELECT * FROM role;`, (err, results) => {
+    err ? console.log(err) : results.forEach(obj => roleArr.push({name: obj.title, value: obj.id}))
+    
+})
+
 const managerArr = [];
+db.query(`SELECT * FROM employee;`, (err, results) => {
+    err ? console.log(err) : results.forEach(obj => managerArr.push({name: obj.first_name + " " + obj.last_name, value: obj.id}))
+    
+})
 function addEmp() {
     inquirer
       .prompt([
@@ -177,43 +187,43 @@ function addEmp() {
             }
         ])
     .then((answers) => {
-        const index = roleArr.indexOf(answers.role);
-        const id = index + 1;
-        const manIndex = managerArr.indexOf(answers.manager);
-        const managerId = manIndex + 1;
+        // const index = roleArr.indexOf(answers.role);
+        // const id = index + 1;
+        // const manIndex = managerArr.indexOf(answers.manager);
+        // const managerId = manIndex + 1;
         
         const queryStore = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`
-        db.query(queryStore, [answers.firstName, answers.lastName, id, managerId]), (err, results) => {
-            err? console.log(err) : console.log(`Added ${answers.firstName} ${answers.lastName} to the database!`)
+        db.query(queryStore, [answers.firstName, answers.lastName, answers.role, answers.manager], (err, results) => {
+            err ? console.log(err) : console.log(`Added ${answers.firstName} ${answers.lastName} to the database!`)
             menu();
-        }
+        })
 
     })
 }
 
 // update an employee
-updateEmployee = () => {
+function updateEmpRole() {
     inquirer
     .prompt([      
         {
-            type: 'checkbox', 
+            type: 'list', 
             name: 'employeeUpdate',
             message: "Who is the employee you want to update?",
-            choices: employeeArrTotal
+            choices: managerArr
         },
         {
-            type: 'checkbox', 
+            type: 'list', 
             name: 'employeeNewRole',
             message: "What is the employee's new role?",
             choices: roleArr
         },
     ])
-    .then((data) => {
-        const newRoleIndex = roleArr.indexOf(data.employeeNewRole[0]);
-        const newRoleid = newRoleIndex + 1;
-        const employeeIndex = employeeArrTotal[0].indexOf(data.employeeUpdate[0]);
-        const employeeid = employeeIndex +1;
-        db.query(`UPDATE employee SET role_id  = ? WHERE id = ? `, [newRoleid, employeeid], (err, result) => {
+    .then((answers) => {
+        // const newRoleIndex = roleArr.indexOf(data.employeeNewRole[0]);
+        // const newRoleid = newRoleIndex + 1;
+        // const employeeIndex = employeeArrTotal[0].indexOf(data.employeeUpdate[0]);
+        // const employeeid = employeeIndex +1;
+        db.query(`UPDATE employee SET role_id  = ? WHERE id = ? `, [answers.employeeNewRole, answers.employeeUpdate], (err, result) => {
             err ? console.log(err) : console.log(`Updated employee in the database`)
             menu();
         })
