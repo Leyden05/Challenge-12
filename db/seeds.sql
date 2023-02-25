@@ -18,7 +18,7 @@ VALUES ('VP of Sales', 88000, 1),
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES ('Mack', 'Klingbeil', 1, NULL),
 ('Leo', 'Carberry', 2, 1),
-('Aaron', 'Bastin', 3, 2,),
+('Aaron', 'Bastin', 3, 2),
 ('Eric', 'Carberry', 4, 2),
 ('Tyler', 'Cappis', 5, 3),
 ('Nick', 'Beard', 6, 3);
